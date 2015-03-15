@@ -1,8 +1,13 @@
+'use strict';
+
 var GLOBALS = {
   colors: {
     white: '#cccccc',
-    black: '#444444'
-  }
+    black: '#444444',
+    selected: '#ff0000'
+  },
+  rows: [1,2,3,4,5,6,7,8],
+  cols: ['a','b','c','d','e','f','g','h']
 }
 
 var Game = function () {
@@ -11,24 +16,24 @@ var Game = function () {
   document.body.appendChild(this.canvas);
 };
 
-Game.DEFAULTS = {
-  colors: {
-    white: '#cccccc',
-    black: '#444444'   
-  }
-}
-
 Game.prototype.initialise = function () {
   var tileSizeInPx = 50;
   this.board = new Board(this.canvas, tileSizeInPx);
   this.board.render();
+
+  // Player 1 goes first
+  this.turn = 'player1';
+
   // Set up player pieces
-  var player1 = new Player(this.canvas, 'white', true);
-  player1.initialise();
-  // var player2 = new Player('black', false);
+  this.player1 = new Player(this.canvas, 'white');
+  this.player2 = new Player(this.canvas, 'black');
+  var actions = new Actions(this);
+  this.player1.initialise();
+  this.player2.initialise();
+  actions.initialise();
+  // Player 1 goes first
+
 }
-
-
 
 function initialise () {
   var chess = new Game();

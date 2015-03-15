@@ -13,7 +13,12 @@ module.exports = function(config) {
     files: [
       'node_modules/sinon/pkg/sinon.js',                    // sinon will be accessable from global context
       "node_modules/chai/chai.js",
-      {pattern: 'app/js/*.js', included: true},
+      'app/js/board.js',
+      'app/js/player.js',
+      'app/js/piece.js',
+      'app/js/actions.js',
+      'app/js/main.js',
+      {pattern: 'app/images/**/*.svg', included: false},
       {pattern: 'app/test/*.spec.js', included: true}
       // {pattern: 'test/*.js', included: false}
     ],

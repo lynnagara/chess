@@ -1,25 +1,25 @@
 
 //      A    B    C    D    E    F    G    H
 //
-// 1    #    #    #    #    #    #    #    #    1
+// 8    #    #    #    #    #    #    #    #    1
 //
-// 2    #    #    #    #    #    #    #    #    2
+// 7    #    #    #    #    #    #    #    #    2
 //
-// 3    #    #    #    #    #    #    #    #    3
+// 6    #    #    #    #    #    #    #    #    3
 //
-// 4    #    #    #    #    #    #    #    #    4
+// 5    #    #    #    #    #    #    #    #    4
 //
-// 5    #    #    #    #    #    #    #    #    5
+// 4    #    #    #    #    #    #    #    #    5
 //
-// 6    #    #    #    #    #    #    #    #    6
+// 3    #    #    #    #    #    #    #    #    6
 //
-// 7    #    #    #    #    #    #    #    #    7
+// 2    #    #    #    #    #    #    #    #    7
 //
-// 8    #    #    #    #    #    #    #    #    8
+// 1    #    #    #    #    #    #    #    #    8
 //
 //      A    B    C    D    E    F    G    H
 
-
+'use strict';
 
 var Board = function (element, tileSizeInPx) {
   this.element = element;
@@ -32,26 +32,30 @@ Board.prototype.render = function () {
 
   var i, j;
   this.tiles = []; // 1d array containing the address of all 64 tiles
-  var rows = [1,2,3,4,5,6,7,8];
-  var cols = ['a','b','c','d','e','f','g','h'];
+  var rows = GLOBALS.rows;
+  var cols = GLOBALS.cols;
 
   rows.forEach(function(row, rowIdx) {
     cols.forEach(function(col, colIdx) {
-      this.tiles.push(row + col);
+      this.tiles.push(col + row);
       // render the tile
-      var x = rowIdx * this.tileSizeInPx;
+      var x = (7 - rowIdx) * this.tileSizeInPx;
       var y = colIdx * this.tileSizeInPx;
       var ctx = this.element.getContext('2d');
-      if ((rowIdx+colIdx) % 2 === 0) {
-        ctx.fillStyle = GLOBALS.colors.white;
-      } else {
-        ctx.fillStyle = GLOBALS.colors.black;
-      }
+      ctx.fillStyle = this.getTileColor(col + row);
       ctx.fillRect(x, y, this.tileSizeInPx, this.tileSizeInPx); 
     }, this);
   }, this);
 
-
-
   return true;
+}
+
+Board.prototype.getTileColor = function (tile) {
+  var x = tile.split('')[0];
+  var y = parseInt(tile.split('')[1]);
+  if ((GLOBALS.cols.indexOf(x) + GLOBALS.rows.indexOf(y)) % 2 === 0) {
+    return GLOBALS.colors.black;
+  } else {
+    return GLOBALS.colors.white;
+  }
 }
