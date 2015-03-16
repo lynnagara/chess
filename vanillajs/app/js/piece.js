@@ -33,19 +33,59 @@ Piece.prototype.isValidMove = function (newpos, oldpos, player, opponent, board)
       break;
     case 'bishop':
       return this.isValidBishopMove(newpos, oldpos, player, opponent, board);
+    case 'queen':
+      return this.isValidQueenMove(newpos, oldpos, player, opponent, board);
     default:
       return false;
   }
 }
 
-
-Piece.prototype.isValidPawnMove = function (newpos, oldpos, player, opponent, board) {
-  // Can't move to a tile occupied by the current player
-  var playerPositions = player.pieces.map(function(piece) {return piece.position});
-  var moveDirection = [ 
+Piece.prototype.getMoveDirection = function (newpos, oldpos) {
+  return [
     GLOBALS.cols.indexOf(newpos.split('')[0]) - GLOBALS.cols.indexOf(oldpos.split('')[0]),
     GLOBALS.rows.indexOf(parseInt(newpos.split('')[1])) - GLOBALS.rows.indexOf(parseInt(oldpos.split('')[1]))
   ]
+}
+
+// Returns an array containing the co-ordinates of squares between two points
+// Excluding those squares
+Piece.prototype.getSquareList = function (newpos,oldpos) {
+  // Make sure its a straight line
+  var moveDirection = this.getMoveDirection(newpos, oldpos);
+
+  var list = [];
+  var i;
+  if (moveDirection[0] === 0 &&  moveDirection[1] === 0) {
+    return false;
+  }
+  if (moveDirection[0] === 0 || moveDirection[1] === 0 || Math.abs(moveDirection[0]) === Math.abs(moveDirection[1])) {
+    // forward/backward    
+
+    var stepsCount = Math.abs(moveDirection[0] || moveDirection[1]);
+    var nextTile;
+    var startX = GLOBALS.cols.indexOf(oldpos.split('')[0]);
+    var startY = GLOBALS.rows.indexOf(parseInt(oldpos.split('')[1]));
+
+    var xDirection, yDirection;
+    moveDirection[0] === 0 ? yDirection = 0 : yDirection = moveDirection[0] / stepsCount;
+    moveDirection[1] === 0 ? xDirection = 0 : xDirection = moveDirection[1] / stepsCount;
+    var direction = [yDirection, xDirection]
+
+    for (i=1;i<stepsCount;i++) {
+      nextTile = GLOBALS.cols[startX+(i*direction[0])] + GLOBALS.rows[startY + (i*direction[1])]
+      list.push(nextTile);
+    }
+    return list;
+
+  } else {
+    // invalid move
+    return false;
+  }
+}
+
+Piece.prototype.isValidPawnMove = function (newpos, oldpos, player, opponent, board) {
+  var moveDirection = this.getMoveDirection(newpos, oldpos);
+
   // Move straight ahead
   if (moveDirection[0] === 0) {
     if (moveDirection[1] === 1) {
@@ -61,7 +101,26 @@ Piece.prototype.isValidPawnMove = function (newpos, oldpos, player, opponent, bo
 }
 
 Piece.prototype.isValidBishopMove = function (newpos, oldpos, player, opponent, board) {
+  var moveDirection = this.getMoveDirection(newpos, oldpos);
+  var tiles;
 
+  if (Math.abs(moveDirection[0]) === Math.abs(moveDirection[1])) {
+    tiles = this.getSquareList(newpos, oldpos)
+    if (tiles && this.squaresAreEmpty(tiles, player, opponent)) {
+      return true;
+    }
+  }
+  return false;
+}
+
+Piece.prototype.isValidQueenMove = function (newpos, oldpos, player, opponent, board) {
+  var moveDirection = this.getMoveDirection(newpos, oldpos);
+  var tiles;
+  tiles = this.getSquareList(newpos, oldpos)
+  if (tiles && this.squaresAreEmpty(tiles, player, opponent)) {
+    return true;
+  }
+  return false;
 }
 
 

@@ -1,17 +1,7 @@
 describe('Piece', function (){
   var piece, canvas;
-  var GLOBALS;
 
   beforeEach(function() {
-    GLOBALS = {
-      colors: {
-        white: '#cccccc',
-        black: '#444444',
-        selected: '#ff0000'
-      },
-      rows: [1,2,3,4,5,6,7,8],
-      cols: ['a','b','c','d','e','f','g','h']
-    }
 
     canvas = document.createElement('canvas');
     color = 'white';
@@ -39,6 +29,28 @@ describe('Piece', function (){
     });
     it ('validates moves correctly', function (done) {
       expect(piece.isValidMove('a3','a2', player, opponent, board)).to.equal(true);
+      expect(piece.isValidMove('a5','a2', player, opponent, board)).to.equal(false);
+      expect(piece.isValidMove('a5','d2', player, opponent, board)).to.equal(false);
+      expect(piece.isValidMove('d4','d2', player, opponent, board)).to.equal(true);
+      done();
+    });
+  });
+  describe('getSquareList()', function () {
+    it ('returns the list of squares 2 points', function (done) {
+      // same cell
+      expect(piece.getSquareList('a2','a2')).to.equal(false)
+      // foward/backward
+      expect(piece.getSquareList('a2','a5')).to.deep.equal(['a4','a3']);
+      expect(piece.getSquareList('d5','d4')).to.deep.equal([]);
+      // sideways
+      expect(piece.getSquareList('c1','a1')).to.deep.equal(['b1']);
+      expect(piece.getSquareList('f1','a1')).to.deep.equal(['b1','c1','d1','e1']);
+      // diagonal
+      expect(piece.getSquareList('a1','d4')).to.deep.equal(['c3','b2']);
+      // invalid
+      expect(piece.getSquareList('a1','d3')).to.equal(false);
+      expect(piece.getSquareList('b1','b1')).to.equal(false);
+      // finish
       done();
     });
   });
