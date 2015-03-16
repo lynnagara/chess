@@ -7,6 +7,7 @@
 var Player = function (canvas, color) {
   this.canvas = canvas;
   this.color = color; // can be white or black
+  this.piecesList = [];
 }
 
 Player.prototype.initialise = function () {
@@ -53,6 +54,7 @@ Player.prototype.initialise = function () {
   this.pieces.forEach(function(p) {
     var piece = new Piece(this.canvas, this.color, p);
     piece.initialise();
+    this.piecesList.push(piece);
   }, this);
 }
 

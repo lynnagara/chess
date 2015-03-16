@@ -27,10 +27,10 @@ Game.prototype.initialise = function () {
   // Set up player pieces
   this.player1 = new Player(this.canvas, 'white');
   this.player2 = new Player(this.canvas, 'black');
-  var actions = new Actions(this);
+  var moves = new Moves(this);
   this.player1.initialise();
   this.player2.initialise();
-  actions.initialise();
+  moves.initialise();
   // Player 1 goes first
 
 }

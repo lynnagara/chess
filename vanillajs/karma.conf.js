@@ -16,7 +16,7 @@ module.exports = function(config) {
       'app/js/board.js',
       'app/js/player.js',
       'app/js/piece.js',
-      'app/js/actions.js',
+      'app/js/moves.js',
       'app/js/main.js',
       {pattern: 'app/images/**/*.svg', included: false},
       {pattern: 'app/test/*.spec.js', included: true}
