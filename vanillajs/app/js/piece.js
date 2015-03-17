@@ -9,21 +9,27 @@ var Piece = function(canvas, color, piece) {
 }
 
 Piece.prototype.initialise = function () {
-  this.render(this.piece.position);
+  var self = this;
+  this.image.onload = function () {
+    self.render(self.piece.position);
+  }
 }
 
-Piece.prototype.render = function (newpos, oldpos) {
+Piece.prototype.render = function (newpos, oldpos, board) {
   var ctx = this.canvas.getContext('2d');
   var x_pos = newpos.split('')[0].charCodeAt(0) - 96;
   var y_pos = 9 - newpos.split('')[1];
-  var img = this.image;
-  this.image.onload = function(){
-    ctx.drawImage(
-      img, 
-      x_pos * 50 - 50 + 3, // centering
-      y_pos * 50 - 50
-    );
+  if (board) {
+    var bgColor = board.getTileColor(newpos);
+    ctx.fillStyle = bgColor;
+    ctx.fillRect(x_pos * 50 - 50, y_pos * 50 - 50, 50, 50); 
   }
+  var img = this.image;
+  ctx.drawImage(
+    img, 
+    x_pos * 50 - 50 + 3, // centering
+    y_pos * 50 - 50
+  );
 }
 
 Piece.prototype.isValidMove = function (newpos, oldpos, player, opponent, board) {
@@ -33,8 +39,19 @@ Piece.prototype.isValidMove = function (newpos, oldpos, player, opponent, board)
       break;
     case 'bishop':
       return this.isValidBishopMove(newpos, oldpos, player, opponent, board);
+      break;
+    case 'rook':
+      return this.isValidRookMove(newpos, oldpos, player, opponent, board);
+      break;
     case 'queen':
       return this.isValidQueenMove(newpos, oldpos, player, opponent, board);
+      break;
+    case 'king':
+      return this.isValidKingMove(newpos, oldpos, player, opponent, board);
+      break;
+    case 'knight':
+      return this.isValidKnightMove(newpos, oldpos, player, opponent, board);
+      break;
     default:
       return false;
   }
@@ -85,16 +102,25 @@ Piece.prototype.getSquareList = function (newpos,oldpos) {
 
 Piece.prototype.isValidPawnMove = function (newpos, oldpos, player, opponent, board) {
   var moveDirection = this.getMoveDirection(newpos, oldpos);
+  var opponentPositions = opponent.pieces.map(function(piece) {return piece.position});
 
   // Move straight ahead
   if (moveDirection[0] === 0) {
     if (moveDirection[1] === 1) {
       // Same column, 1 step forward
-      return this.squaresAreEmpty([newpos], player, opponent);
+      if (this.squaresAreEmpty([newpos], player, opponent)) {
+        if (opponentPositions.indexOf(newpos) === -1) {
+          return true;
+        }
+      }
     } else if (moveDirection[1] === 2) {
       var tile = newpos.split('')[0] + parseInt(newpos.split('')[1] - 1);
       var tilesArr = [newpos, tile]
       return parseInt(oldpos.split('')[1]) === 2 && this.squaresAreEmpty(tilesArr, player, opponent);
+    }
+  } else if (Math.abs(moveDirection[0]) === 1) {
+    if (opponentPositions.indexOf(newpos) !== -1) {
+      return true;
     }
   }
   return false;
@@ -113,6 +139,19 @@ Piece.prototype.isValidBishopMove = function (newpos, oldpos, player, opponent, 
   return false;
 }
 
+Piece.prototype.isValidRookMove = function (newpos, oldpos, player, opponent, board) {
+  var moveDirection = this.getMoveDirection(newpos, oldpos);
+  var tiles;
+
+  if (Math.abs(moveDirection[0]) === 0 || Math.abs(moveDirection[1] === 0)) {
+    tiles = this.getSquareList(newpos, oldpos)
+    if (tiles && this.squaresAreEmpty(tiles, player, opponent)) {
+      return true;
+    }
+  }
+  return false;
+}
+
 Piece.prototype.isValidQueenMove = function (newpos, oldpos, player, opponent, board) {
   var moveDirection = this.getMoveDirection(newpos, oldpos);
   var tiles;
@@ -122,6 +161,28 @@ Piece.prototype.isValidQueenMove = function (newpos, oldpos, player, opponent, b
   }
   return false;
 }
+
+Piece.prototype.isValidKingMove = function (newpos, oldpos, player, opponent, board) {
+  var moveDirection = this.getMoveDirection(newpos, oldpos);
+  var tiles;
+
+  if (Math.abs(moveDirection[0]) === 1 || Math.abs(moveDirection[1] === 1)) {
+    tiles = this.getSquareList(newpos, oldpos)
+    if (tiles && this.squaresAreEmpty(tiles, player, opponent)) {
+      return true;
+    }
+  }
+  return false;
+}
+
+Piece.prototype.isValidKnightMove = function (newpos, oldpos, player, opponent, board) {
+  var moveDirection = this.getMoveDirection(newpos, oldpos);
+  if ((Math.abs(moveDirection[0]) + Math.abs(moveDirection[1]) === 3) && Math.abs(moveDirection[0]) !== 0 && Math.abs(moveDirection[1]) !== 0) {
+    return true;
+  }
+  return false;
+}
+
 
 
 // Returns true if all the tiles in a given array are empty

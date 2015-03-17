@@ -30,6 +30,10 @@ Moves.prototype.handleSelection = function (tile) {
   
   var listOfPlayerPositions = this[this.turn].pieces.map(function(piece) {return piece.position});
   var from, turn, idx;
+  var player = this[this.turn];
+  var opponent;
+  this[this.turn] === this.player1 ? opponent = this.player2 : opponent = this.player1;
+
 
   if (!this.selectedTile) {
     // Check if the tile can be selected
@@ -38,47 +42,48 @@ Moves.prototype.handleSelection = function (tile) {
     }
   } else {
     // Check if the move is valid...
-    turn = this.turn;
     idx = listOfPlayerPositions.indexOf(this.selectedTile);
     from = this[this.turn].pieces[idx];
 
-    if (this.isValidMove(from, tile, idx)) {
-      this.movePiece(from, tile, turn);
+    if (this.isValidMove(from, tile, player, opponent, idx)) {
+      this.movePiece(from, tile, player, opponent);
     } else {
       this.unselectTile(this.selectedTile);      
     }
   }
 }
 
-Moves.prototype.isValidMove = function (from, toPos, idx) {
-  var piece = this[this.turn].piecesList[idx];
-  var player = this[this.turn];
-  var opponent;
-  this[this.turn] === this.player1 ? opponent = this.player2 : opponent = this.player1;
-  var isValid = piece.isValidMove(toPos, from.position, player, opponent, this.board);
-  return isValid;
+Moves.prototype.isValidMove = function (from, newpos, player, opponent, idx) {
+  if (player.pieces.map(function(piece) {return piece.position}).indexOf(newpos) > -1) {
+    return false;
+  } else {
+    var piece = this[this.turn].piecesList[idx];
+    var isValid = piece.isValidMove(newpos, from.position, player, opponent, this.board);
+    return isValid;
+  }
 }
 
-Moves.prototype.movePiece = function (from, newpos, turn) {
-
-  var image = new Image();
-  image.src = 'images/' + this[turn].color + '/' + from.name + '.svg';
-  var ctx = this.canvas.getContext('2d');
-  var x_pos = newpos.split('')[0].charCodeAt(0) - 96;
-  var y_pos = 9 - newpos.split('')[1];
-  image.onload = function(){
-    ctx.drawImage(
-      image, 
-      x_pos * 50 - 50 + 3, // centering
-      y_pos * 50 - 50
-    );
-  }
-  this.clearTile(from.position);
-  // Update array
+Moves.prototype.movePiece = function (from, newpos, player, opponent) {
+  console.log(newpos)
+  // Get idx in player's array
   var idx = this[this.turn].pieces
     .map(function(piece) { return JSON.stringify(piece)})
     .indexOf(JSON.stringify(from));
+  var piece = this[this.turn].piecesList[idx];
+  piece.render(newpos, from.position, this.board);
+  this.clearTile(from.position);
+  // Update array
   this[this.turn].pieces[idx].position = newpos;
+  // Check if there is a capture
+  var opponentIdx = opponent.pieces.map(function(piece) {return piece.position}).indexOf(newpos);
+  if (opponentIdx > -1) {
+    // get the index in the opponents list
+    opponent.pieces.splice(opponentIdx, 1);
+    var captured = opponent.piecesList.splice(opponentIdx, 1);
+    opponent.captured.push(captured);
+  }
+  console.log(opponent);
+  // Check if there is a check/checkmate
 }
 
 Moves.prototype.selectTile = function (tile) {

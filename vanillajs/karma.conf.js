@@ -20,7 +20,6 @@ module.exports = function(config) {
       'app/js/main.js',
       {pattern: 'app/images/**/*.svg', included: false},
       {pattern: 'app/test/*.spec.js', included: true}
-      // {pattern: 'test/*.js', included: false}
     ],
 
 

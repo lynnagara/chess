@@ -8,6 +8,7 @@ var Player = function (canvas, color) {
   this.canvas = canvas;
   this.color = color; // can be white or black
   this.piecesList = [];
+  this.captured = [];
 }
 
 Player.prototype.initialise = function () {
