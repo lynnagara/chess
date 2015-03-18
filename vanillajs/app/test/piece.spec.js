@@ -1,12 +1,11 @@
 describe('Piece', function (){
-  var piece, canvas;
+  var canvas, color, piece;
 
   beforeEach(function() {
-
     canvas = document.createElement('canvas');
     color = 'white';
     p = {name:'pawn', position:'a2'}
-    piece = new Piece(canvas, color, p);
+    piece = new Piece(canvas, color, p, true);
     piece.initialise();
   });
   describe('initalise()', function () {
@@ -18,7 +17,7 @@ describe('Piece', function (){
   });
 
   describe('isValidMove()', function () {
-    var board, player, opponent;
+    var board, player, opponent, playerPieces, opponentPieces;
     beforeEach(function() {
       board = new Board(canvas, 50);
       board.render();
@@ -26,12 +25,14 @@ describe('Piece', function (){
       opponent = new Player(canvas, 'black', false);
       player.initialise();
       opponent.initialise();
+      playerPieces = player.pieces;
+      opponentPieces = opponent.pieces;
     });
     it ('validates moves correctly', function (done) {
-      expect(piece.isValidMove('a3','a2', player, opponent, board)).to.equal(true);
-      expect(piece.isValidMove('a5','a2', player, opponent, board)).to.equal(false);
-      expect(piece.isValidMove('a5','d2', player, opponent, board)).to.equal(false);
-      expect(piece.isValidMove('d4','d2', player, opponent, board)).to.equal(true);
+      expect(piece.isValidMove('a3','a2', playerPieces, opponentPieces, board)).to.equal(true);
+      expect(piece.isValidMove('a5','a2', playerPieces, opponentPieces, board)).to.equal(false);
+      expect(piece.isValidMove('a5','d2', playerPieces, opponentPieces, board)).to.equal(false);
+      expect(piece.isValidMove('d4','d2', playerPieces, opponentPieces, board)).to.equal(true);
       done();
     });
   });

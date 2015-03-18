@@ -139,7 +139,8 @@ Piece.prototype.isValidPawnMove = function (newpos, oldpos, playerPieces, oppone
       directionMultiplier === 1 ? startingPawnPosition = 2 : startingPawnPosition = 7;
       return parseInt(oldpos.split('')[1]) === startingPawnPosition && this.squaresAreEmpty(tilesArr, playerPieces, opponentPieces);
     }
-  } else if (Math.abs(moveDirection[0]) === 1 && opponentPositions.indexOf(newpos) !== -1) {
+  } else if (Math.abs(moveDirection[0]) === 1 && moveDirection[1] === directionMultiplier && opponentPositions.indexOf(newpos) !== -1) {
+    // moving 1 space left/right, 1 space forward, and is a capture scenario
     return true;
   }
   return false;

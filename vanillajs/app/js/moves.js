@@ -84,13 +84,19 @@ Moves.prototype.isChecked = function (player, opponent, from, newpos) {
     .indexOf(JSON.stringify(from));
   
   playerPieces[idx].position = newpos;
+  // was there a capture?
+  var capturedIdx = opponentPieces.map(function(piece) {return piece.position}).indexOf(newpos);
 
   var kingPos = playerPieces.filter (
     function(piece) {if (piece.name === 'king') {return true;}}
   )[0].position;
 
-  return opponent.piecesList.some(function(piece) {
-    return piece.isValidMove(kingPos, piece.piece.position, playerPieces, opponentPieces, this.board);
+  return opponent.piecesList.some(function(piece, idx) {
+    if (capturedIdx === idx) {
+      return false; // just return false, this piece is no longer valid
+    } else {
+      return piece.isValidMove(kingPos, piece.piece.position, playerPieces, opponentPieces, this.board);
+    }
   }, this);
 
 }
