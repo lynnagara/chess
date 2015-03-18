@@ -4,9 +4,10 @@
 
 'use strict';
 
-var Player = function (canvas, color) {
+var Player = function (canvas, color, playForwardDirection) {
   this.canvas = canvas;
   this.color = color; // can be white or black
+  this.playForwardDirection = playForwardDirection;
   this.piecesList = [];
   this.captured = [];
 }
@@ -53,7 +54,7 @@ Player.prototype.initialise = function () {
   }
 
   this.pieces.forEach(function(p) {
-    var piece = new Piece(this.canvas, this.color, p);
+    var piece = new Piece(this.canvas, this.color, p, this.playForwardDirection);
     piece.initialise();
     this.piecesList.push(piece);
   }, this);

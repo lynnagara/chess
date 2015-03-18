@@ -64,7 +64,6 @@ Moves.prototype.isValidMove = function (from, newpos, player, opponent, idx) {
 }
 
 Moves.prototype.movePiece = function (from, newpos, player, opponent) {
-  console.log(newpos)
   // Get idx in player's array
   var idx = this[this.turn].pieces
     .map(function(piece) { return JSON.stringify(piece)})
@@ -82,8 +81,9 @@ Moves.prototype.movePiece = function (from, newpos, player, opponent) {
     var captured = opponent.piecesList.splice(opponentIdx, 1);
     opponent.captured.push(captured);
   }
-  console.log(opponent);
-  // Check if there is a check/checkmate
+
+  // It's the other players turn
+  this.turn === 'player1' ? this.turn = 'player2' : this.turn = 'player1';
 }
 
 Moves.prototype.selectTile = function (tile) {

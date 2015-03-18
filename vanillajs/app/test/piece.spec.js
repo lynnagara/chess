@@ -22,8 +22,8 @@ describe('Piece', function (){
     beforeEach(function() {
       board = new Board(canvas, 50);
       board.render();
-      player = new Player(canvas, 'white');
-      opponent = new Player(canvas, 'black');
+      player = new Player(canvas, 'white', true);
+      opponent = new Player(canvas, 'black', false);
       player.initialise();
       opponent.initialise();
     });

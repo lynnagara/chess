@@ -1,9 +1,10 @@
 'use strict';
 
-var Piece = function(canvas, color, piece) {
+var Piece = function(canvas, color, piece, playForwardDirection) {
   this.canvas = canvas;
   this.color = color;
   this.piece = piece;
+  this.playForwardDirection = playForwardDirection;
   this.image = new Image();
   this.image.src = 'images/' + this.color + '/' + this.piece.name + '.svg';
 }
@@ -103,25 +104,27 @@ Piece.prototype.getSquareList = function (newpos,oldpos) {
 Piece.prototype.isValidPawnMove = function (newpos, oldpos, player, opponent, board) {
   var moveDirection = this.getMoveDirection(newpos, oldpos);
   var opponentPositions = opponent.pieces.map(function(piece) {return piece.position});
+  var directionMultiplier;
+  this.playForwardDirection ? directionMultiplier = 1 : directionMultiplier = -1;
 
   // Move straight ahead
   if (moveDirection[0] === 0) {
-    if (moveDirection[1] === 1) {
+    if (moveDirection[1] === 1 * directionMultiplier) {
       // Same column, 1 step forward
       if (this.squaresAreEmpty([newpos], player, opponent)) {
         if (opponentPositions.indexOf(newpos) === -1) {
           return true;
         }
       }
-    } else if (moveDirection[1] === 2) {
-      var tile = newpos.split('')[0] + parseInt(newpos.split('')[1] - 1);
+    } else if (moveDirection[1] === 2 * directionMultiplier) {
+      var tile = newpos.split('')[0] + parseInt(newpos.split('')[1] - directionMultiplier);
       var tilesArr = [newpos, tile]
-      return parseInt(oldpos.split('')[1]) === 2 && this.squaresAreEmpty(tilesArr, player, opponent);
+      var startingPawnPosition;
+      directionMultiplier === 1 ? startingPawnPosition = 2 : startingPawnPosition = 7;
+      return parseInt(oldpos.split('')[1]) === startingPawnPosition && this.squaresAreEmpty(tilesArr, player, opponent);
     }
-  } else if (Math.abs(moveDirection[0]) === 1) {
-    if (opponentPositions.indexOf(newpos) !== -1) {
-      return true;
-    }
+  } else if (Math.abs(moveDirection[0]) === 1 && opponentPositions.indexOf(newpos) !== -1) {
+    return true;
   }
   return false;
 }
