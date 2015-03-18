@@ -55,13 +55,44 @@ Moves.prototype.handleSelection = function (tile) {
 }
 
 Moves.prototype.isValidMove = function (from, newpos, player, opponent, idx) {
-  if (player.pieces.map(function(piece) {return piece.position}).indexOf(newpos) > -1) {
+  if (this.isChecked(player, opponent, from, newpos)) {
+    // would make it CHECK
+    return false;
+  } else if (player.pieces.map(function(piece) {return piece.position}).indexOf(newpos) > -1) {
+    // no move made
     return false;
   } else {
     var piece = this[this.turn].piecesList[idx];
-    var isValid = piece.isValidMove(newpos, from.position, player, opponent, this.board);
+    var isValid = piece.isValidMove(newpos, from.position, player.pieces, opponent.pieces, this.board);
     return isValid;
   }
+}
+
+Moves.prototype.isChecked = function (player, opponent, from, newpos) {
+
+  function deepCopy(obj) {
+    return JSON.parse(JSON.stringify(obj));
+  }
+
+  // Deep copy the player objects
+  var playerPieces = deepCopy(player.pieces)
+  var opponentPieces = deepCopy(opponent.pieces)
+
+  // Perform the play
+  var idx = playerPieces
+    .map(function(piece) { return JSON.stringify(piece)})
+    .indexOf(JSON.stringify(from));
+  
+  playerPieces[idx].position = newpos;
+
+  var kingPos = playerPieces.filter (
+    function(piece) {if (piece.name === 'king') {return true;}}
+  )[0].position;
+
+  return opponent.piecesList.some(function(piece) {
+    return piece.isValidMove(kingPos, piece.piece.position, playerPieces, opponentPieces, this.board);
+  }, this);
+
 }
 
 Moves.prototype.movePiece = function (from, newpos, player, opponent) {

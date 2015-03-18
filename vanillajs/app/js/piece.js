@@ -49,25 +49,25 @@ Piece.prototype.renderCaptured = function (player, opponent) {
 
 }
 
-Piece.prototype.isValidMove = function (newpos, oldpos, player, opponent, board) {
+Piece.prototype.isValidMove = function (newpos, oldpos, playerPieces, opponentPieces, board) {
   switch(this.piece.name) {
     case 'pawn':
-      return this.isValidPawnMove(newpos, oldpos, player, opponent, board);
+      return this.isValidPawnMove(newpos, oldpos, playerPieces, opponentPieces, board);
       break;
     case 'bishop':
-      return this.isValidBishopMove(newpos, oldpos, player, opponent, board);
+      return this.isValidBishopMove(newpos, oldpos, playerPieces, opponentPieces, board);
       break;
     case 'rook':
-      return this.isValidRookMove(newpos, oldpos, player, opponent, board);
+      return this.isValidRookMove(newpos, oldpos, playerPieces, opponentPieces, board);
       break;
     case 'queen':
-      return this.isValidQueenMove(newpos, oldpos, player, opponent, board);
+      return this.isValidQueenMove(newpos, oldpos, playerPieces, opponentPieces, board);
       break;
     case 'king':
-      return this.isValidKingMove(newpos, oldpos, player, opponent, board);
+      return this.isValidKingMove(newpos, oldpos, playerPieces, opponentPieces, board);
       break;
     case 'knight':
-      return this.isValidKnightMove(newpos, oldpos, player, opponent, board);
+      return this.isValidKnightMove(newpos, oldpos, playerPieces, opponentPieces, board);
       break;
     default:
       return false;
@@ -117,9 +117,9 @@ Piece.prototype.getSquareList = function (newpos,oldpos) {
   }
 }
 
-Piece.prototype.isValidPawnMove = function (newpos, oldpos, player, opponent, board) {
+Piece.prototype.isValidPawnMove = function (newpos, oldpos, playerPieces, opponentPieces, board) {
   var moveDirection = this.getMoveDirection(newpos, oldpos);
-  var opponentPositions = opponent.pieces.map(function(piece) {return piece.position});
+  var opponentPositions = opponentPieces.map(function(piece) {return piece.position});
   var directionMultiplier;
   this.playForwardDirection ? directionMultiplier = 1 : directionMultiplier = -1;
 
@@ -127,7 +127,7 @@ Piece.prototype.isValidPawnMove = function (newpos, oldpos, player, opponent, bo
   if (moveDirection[0] === 0) {
     if (moveDirection[1] === 1 * directionMultiplier) {
       // Same column, 1 step forward
-      if (this.squaresAreEmpty([newpos], player, opponent)) {
+      if (this.squaresAreEmpty([newpos], playerPieces, opponentPieces)) {
         if (opponentPositions.indexOf(newpos) === -1) {
           return true;
         }
@@ -137,7 +137,7 @@ Piece.prototype.isValidPawnMove = function (newpos, oldpos, player, opponent, bo
       var tilesArr = [newpos, tile]
       var startingPawnPosition;
       directionMultiplier === 1 ? startingPawnPosition = 2 : startingPawnPosition = 7;
-      return parseInt(oldpos.split('')[1]) === startingPawnPosition && this.squaresAreEmpty(tilesArr, player, opponent);
+      return parseInt(oldpos.split('')[1]) === startingPawnPosition && this.squaresAreEmpty(tilesArr, playerPieces, opponentPieces);
     }
   } else if (Math.abs(moveDirection[0]) === 1 && opponentPositions.indexOf(newpos) !== -1) {
     return true;
@@ -145,56 +145,56 @@ Piece.prototype.isValidPawnMove = function (newpos, oldpos, player, opponent, bo
   return false;
 }
 
-Piece.prototype.isValidBishopMove = function (newpos, oldpos, player, opponent, board) {
+Piece.prototype.isValidBishopMove = function (newpos, oldpos, playerPieces, opponentPieces, board) {
   var moveDirection = this.getMoveDirection(newpos, oldpos);
   var tiles;
 
   if (Math.abs(moveDirection[0]) === Math.abs(moveDirection[1])) {
     tiles = this.getSquareList(newpos, oldpos)
-    if (tiles && this.squaresAreEmpty(tiles, player, opponent)) {
+    if (tiles && this.squaresAreEmpty(tiles, playerPieces, opponentPieces)) {
       return true;
     }
   }
   return false;
 }
 
-Piece.prototype.isValidRookMove = function (newpos, oldpos, player, opponent, board) {
+Piece.prototype.isValidRookMove = function (newpos, oldpos, playerPieces, opponentPieces, board) {
   var moveDirection = this.getMoveDirection(newpos, oldpos);
   var tiles;
 
   if (Math.abs(moveDirection[0]) === 0 || Math.abs(moveDirection[1] === 0)) {
     tiles = this.getSquareList(newpos, oldpos)
-    if (tiles && this.squaresAreEmpty(tiles, player, opponent)) {
+    if (tiles && this.squaresAreEmpty(tiles, playerPieces, opponentPieces)) {
       return true;
     }
   }
   return false;
 }
 
-Piece.prototype.isValidQueenMove = function (newpos, oldpos, player, opponent, board) {
+Piece.prototype.isValidQueenMove = function (newpos, oldpos, playerPieces, opponentPieces, board) {
   var moveDirection = this.getMoveDirection(newpos, oldpos);
   var tiles;
   tiles = this.getSquareList(newpos, oldpos)
-  if (tiles && this.squaresAreEmpty(tiles, player, opponent)) {
+  if (tiles && this.squaresAreEmpty(tiles, playerPieces, opponentPieces)) {
     return true;
   }
   return false;
 }
 
-Piece.prototype.isValidKingMove = function (newpos, oldpos, player, opponent, board) {
+Piece.prototype.isValidKingMove = function (newpos, oldpos, playerPieces, opponentPieces, board) {
   var moveDirection = this.getMoveDirection(newpos, oldpos);
   var tiles;
 
   if (Math.abs(moveDirection[0]) === 1 || Math.abs(moveDirection[1] === 1)) {
     tiles = this.getSquareList(newpos, oldpos)
-    if (tiles && this.squaresAreEmpty(tiles, player, opponent)) {
+    if (tiles && this.squaresAreEmpty(tiles, playerPieces, opponentPieces)) {
       return true;
     }
   }
   return false;
 }
 
-Piece.prototype.isValidKnightMove = function (newpos, oldpos, player, opponent, board) {
+Piece.prototype.isValidKnightMove = function (newpos, oldpos, playerPieces, opponentPieces, board) {
   var moveDirection = this.getMoveDirection(newpos, oldpos);
   if ((Math.abs(moveDirection[0]) + Math.abs(moveDirection[1]) === 3) && Math.abs(moveDirection[0]) !== 0 && Math.abs(moveDirection[1]) !== 0) {
     return true;
@@ -206,8 +206,8 @@ Piece.prototype.isValidKnightMove = function (newpos, oldpos, player, opponent, 
 
 // Returns true if all the tiles in a given array are empty
 // Otherwise returns false
-Piece.prototype.squaresAreEmpty = function (tilesArr, player, opponent) {
-  var occupiedPositions = player.pieces.concat(opponent.pieces).map(function(piece) {return piece.position});
+Piece.prototype.squaresAreEmpty = function (tilesArr, playerPieces, opponentPieces) {
+  var occupiedPositions = playerPieces.concat(opponentPieces).map(function(piece) {return piece.position});
   return tilesArr.every(function(tile) {
     return occupiedPositions.indexOf(tile) === -1;
   });
