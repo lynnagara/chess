@@ -78,8 +78,9 @@ Moves.prototype.movePiece = function (from, newpos, player, opponent) {
   if (opponentIdx > -1) {
     // get the index in the opponents list
     opponent.pieces.splice(opponentIdx, 1);
-    var captured = opponent.piecesList.splice(opponentIdx, 1);
+    var captured = opponent.piecesList.splice(opponentIdx, 1)[0];
     opponent.captured.push(captured);
+    captured.renderCaptured(player, opponent);
   }
 
   // It's the other players turn

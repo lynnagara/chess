@@ -18,19 +18,35 @@ Piece.prototype.initialise = function () {
 
 Piece.prototype.render = function (newpos, oldpos, board) {
   var ctx = this.canvas.getContext('2d');
-  var x_pos = newpos.split('')[0].charCodeAt(0) - 96;
-  var y_pos = 9 - newpos.split('')[1];
+  var xPos = newpos.split('')[0].charCodeAt(0) - 96;
+  var yPos = 9 - newpos.split('')[1];
   if (board) {
     var bgColor = board.getTileColor(newpos);
     ctx.fillStyle = bgColor;
-    ctx.fillRect(x_pos * 50 - 50, y_pos * 50 - 50, 50, 50); 
+    ctx.fillRect(xPos * 50 - 50, yPos * 50 - 50, 50, 50); 
   }
   var img = this.image;
   ctx.drawImage(
     img, 
-    x_pos * 50 - 50 + 3, // centering
-    y_pos * 50 - 50
+    xPos * 50 - 50 + 3, // centering
+    yPos * 50 - 50
   );
+}
+
+Piece.prototype.renderCaptured = function (player, opponent) {
+  var xOffset = 450; // 5 * 8
+  var ctx = this.canvas.getContext('2d');
+  var num = player.captured.length + opponent.captured.length;
+  var xPos = (num - 1) % 5;
+  console.log(num % 5)
+  var yPos = (num - xPos) / 5;
+  var img = this.image;
+  ctx.drawImage(
+    img, 
+    xPos * 50 + xOffset, // centering
+    yPos * 50
+  );
+
 }
 
 Piece.prototype.isValidMove = function (newpos, oldpos, player, opponent, board) {

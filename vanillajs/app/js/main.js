@@ -31,7 +31,6 @@ Game.prototype.initialise = function () {
   this.player1.initialise();
   this.player2.initialise();
   moves.initialise();
-  // Player 1 goes first
 
 }
 

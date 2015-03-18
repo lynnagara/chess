@@ -6,7 +6,7 @@ var Board = function (element, tileSizeInPx) {
 }
 
 Board.prototype.render = function () {
-  this.element.width = this.tileSizeInPx * 8;
+  this.element.width = this.tileSizeInPx * 8 + 300;
   this.element.height = this.tileSizeInPx * 8;
 
   var i, j;
@@ -38,3 +38,4 @@ Board.prototype.getTileColor = function (tile) {
     return GLOBALS.colors.white;
   }
 }
+
