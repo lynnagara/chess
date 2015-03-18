@@ -11,6 +11,8 @@ var Moves = function (chess) {
 
 Moves.prototype.initialise = function () {
 
+  this.renderTurnText();
+  
   function handleClick (event) {
     // Get the tile name
     var x = GLOBALS.cols[Math.floor(event.clientX / 50)];
@@ -19,7 +21,6 @@ Moves.prototype.initialise = function () {
     var tile = x + y;
 
     this.handleSelection(tile);
-
   }
 
   // Add event listeners
@@ -85,6 +86,20 @@ Moves.prototype.movePiece = function (from, newpos, player, opponent) {
 
   // It's the other players turn
   this.turn === 'player1' ? this.turn = 'player2' : this.turn = 'player1';
+  this.renderTurnText();
+}
+
+Moves.prototype.renderTurnText = function () {
+  var playerDisplayName;
+  this.turn === 'player1' ? playerDisplayName = 'White' : playerDisplayName = 'Black';
+  var ctx = this.canvas.getContext('2d');
+  ctx.fillStyle = '#ffffff';  
+  ctx.fillRect(420, 0, 250, 50);
+
+  ctx.fillStyle = GLOBALS.colors.black;
+  ctx.font = '20px sans-serif';
+  ctx.textBaseline = 'top';
+  ctx.fillText(playerDisplayName + '\'s turn', 420, 10);
 }
 
 Moves.prototype.selectTile = function (tile) {

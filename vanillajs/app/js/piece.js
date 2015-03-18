@@ -34,17 +34,17 @@ Piece.prototype.render = function (newpos, oldpos, board) {
 }
 
 Piece.prototype.renderCaptured = function (player, opponent) {
-  var xOffset = 450; // 5 * 8
+  var xOffset = 420; // 5 * 8
+  var yOffset = 50;
   var ctx = this.canvas.getContext('2d');
   var num = player.captured.length + opponent.captured.length;
   var xPos = (num - 1) % 5;
-  console.log(num % 5)
-  var yPos = (num - xPos) / 5;
+  var yPos = (num - xPos - 1) / 5;
   var img = this.image;
   ctx.drawImage(
     img, 
     xPos * 50 + xOffset, // centering
-    yPos * 50
+    yPos * 50 + yOffset
   );
 
 }
