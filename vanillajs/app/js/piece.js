@@ -163,7 +163,7 @@ Piece.prototype.isValidRookMove = function (newpos, oldpos, playerPieces, oppone
   var moveDirection = this.getMoveDirection(newpos, oldpos);
   var tiles;
 
-  if (Math.abs(moveDirection[0]) === 0 || Math.abs(moveDirection[1] === 0)) {
+  if (Math.abs(moveDirection[0]) === 0 || Math.abs(moveDirection[1]) === 0) {
     tiles = this.getSquareList(newpos, oldpos)
     if (tiles && this.squaresAreEmpty(tiles, playerPieces, opponentPieces)) {
       return true;
