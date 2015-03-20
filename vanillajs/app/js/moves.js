@@ -11,7 +11,7 @@ var Moves = function (chess) {
 
 Moves.prototype.initialise = function () {
 
-  this.renderTurnText();
+  this.renderTurnText(this.turn);
   
   function handleClick (event) {
     // Get the tile name
@@ -193,29 +193,33 @@ Moves.prototype.movePiece = function (from, newpos, player, opponent) {
 
   // It's the other players turn
   this.turn === 'player1' ? this.turn = 'player2' : this.turn = 'player1';
-  this.renderTurnText();
   if (this.isCheck(from, newpos, player, opponent)) {
     if (this.isCheckMate(from, newpos, player, opponent)) {
-      console.log('checkmate');
+    this.renderTurnText(this.turn, 'CHECKMATE');
     } else {
-      console.log('check');
+      this.renderTurnText(this.turn, 'CHECK');
     }
   } else {
-    console.log('not checked')
+    this.renderTurnText(this.turn);
   }
 }
 
-Moves.prototype.renderTurnText = function () {
-  var playerDisplayName;
-  this.turn === 'player1' ? playerDisplayName = 'White' : playerDisplayName = 'Black';
+Moves.prototype.renderTurnText = function (player, checkText) {
+  var displayText;
+  player === 'player1' ? displayText = 'White' : displayText = 'Black';
+  displayText += '\'s turn';
+  if (checkText) {
+    displayText += ' (' + checkText + ')';
+  }
+
   var ctx = this.canvas.getContext('2d');
-  ctx.fillStyle = '#ffffff';  
-  ctx.fillRect(420, 0, 250, 50);
+  ctx.fillStyle = '#ffffff';
+  ctx.fillRect(420, 0, 250, 25);
 
   ctx.fillStyle = GLOBALS.colors.black;
-  ctx.font = '20px sans-serif';
+  ctx.font = '14px sans-serif';
   ctx.textBaseline = 'top';
-  ctx.fillText(playerDisplayName + '\'s turn', 420, 10);
+  ctx.fillText(displayText, 420, 10);
 }
 
 Moves.prototype.selectTile = function (tile) {
