@@ -55,4 +55,13 @@ describe('Piece', function (){
       done();
     });
   });
+  describe('getMoveDirection()', function() {
+    it ('returns the direction of the move as [x,y]', function(done) {
+      // no change
+      expect(piece.getMoveDirection('a2','a2')).to.deep.equal([0,0]);
+      expect(piece.getMoveDirection('a3','a2')).to.deep.equal([0,1]);
+      expect(piece.getMoveDirection('a7','a8')).to.deep.equal([0,-1]);
+      done();
+    });
+  });
 });

@@ -55,7 +55,7 @@ Moves.prototype.handleSelection = function (tile) {
 }
 
 Moves.prototype.isValidMove = function (from, newpos, player, opponent, idx) {
-  if (this.isChecked(player, opponent, from, newpos)) {
+  if (this.wouldBeChecked(player, opponent, from, newpos)) {
     // would make it CHECK
     return false;
   } else if (player.pieces.map(function(piece) {return piece.position}).indexOf(newpos) > -1) {
@@ -63,12 +63,12 @@ Moves.prototype.isValidMove = function (from, newpos, player, opponent, idx) {
     return false;
   } else {
     var piece = this[this.turn].piecesList[idx];
-    var isValid = piece.isValidMove(newpos, from.position, player.pieces, opponent.pieces, this.board);
+    var isValid = piece.isValidMove(newpos, from.position, player.pieces, opponent.pieces);
     return isValid;
   }
 }
 
-Moves.prototype.isChecked = function (player, opponent, from, newpos) {
+Moves.prototype.wouldBeChecked = function (player, opponent, from, newpos) {
 
   function deepCopy(obj) {
     return JSON.parse(JSON.stringify(obj));
@@ -95,10 +95,56 @@ Moves.prototype.isChecked = function (player, opponent, from, newpos) {
     if (capturedIdx === idx) {
       return false; // just return false, this piece is no longer valid
     } else {
-      return piece.isValidMove(kingPos, piece.piece.position, playerPieces, opponentPieces, this.board);
+      return piece.isValidMove(kingPos, piece.piece.position, playerPieces, opponentPieces);
     }
   }, this);
+}
 
+Moves.prototype.isCheck = function (from, newpos, player, opponent) {
+  var kingPos = opponent.pieces.filter (
+    function(piece) {if (piece.name === 'king') {return true;}}
+  )[0].position;
+  return player.piecesList.some(function(piece, idx) {
+    return piece.isValidMove(kingPos, piece.piece.position, player.pieces, opponent.pieces);
+  }, this);
+}
+
+Moves.prototype.isCheckMate = function (from, newpos, player, opponent) {
+  // Checkmate scenarios - 
+  // 1. Is it possible to capture the piece that has just moved into the 'check' position?
+  // 2. Can king move to another position?
+  // 3. Can another piece block the check?
+  function canCaptureCheckingPiece() {
+    // Loop through player pieces, and see if you can capture the piece that lost
+    return !opponent.piecesList.some(function(piece, idx) {
+      return piece.isValidMove(newpos, piece.piece.position, opponent.pieces, player.pieces);
+    });
+  }
+
+  function canMoveKing() {
+    // Get address of all available squares around the king
+    var kingPos = opponent.pieces.filter (
+      function(piece) {if (piece.name === 'king') {return true;}}
+    )[0].position;
+    var tiles = [];
+    var x, y;
+    var yIdx = GLOBALS.cols.indexOf(kingPos.split('')[0]);
+    var xIdx = GLOBALS.rows.indexOf(parseInt(kingPos.split('')[1]));
+    [0,1,2,3,4,5,6,7,8].forEach(function(i) {
+      y = i % 3;
+      x = (i - y)/3;
+    });
+
+  }
+
+  canMoveKing();
+  return true;
+  // if (canCaptureCheckingPiece()) {
+  //   return false;
+  // } else {
+  //   canMoveKing();
+  //   return true;
+  // }
 }
 
 Moves.prototype.movePiece = function (from, newpos, player, opponent) {
@@ -124,6 +170,15 @@ Moves.prototype.movePiece = function (from, newpos, player, opponent) {
   // It's the other players turn
   this.turn === 'player1' ? this.turn = 'player2' : this.turn = 'player1';
   this.renderTurnText();
+  if (this.isCheck(from, newpos, player, opponent)) {
+    if (this.isCheckMate(from, newpos, player, opponent)) {
+      console.log('checkmate');
+    } else {
+      console.log('check');
+    }
+  } else {
+    console.log('not checked')
+  }
 }
 
 Moves.prototype.renderTurnText = function () {
@@ -167,8 +222,4 @@ Moves.prototype.clearTile = function (tile) {
   ctx.fillRect(GLOBALS.cols.indexOf(x) * 50, ((7 - GLOBALS.rows.indexOf(y)) * 50), 50, 50);    
   this.selectedTile = null;
 }
-
-
-
-
 
