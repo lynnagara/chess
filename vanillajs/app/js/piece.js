@@ -204,7 +204,6 @@ Piece.prototype.isValidKnightMove = function (newpos, oldpos, playerPieces, oppo
 }
 
 
-
 // Returns true if all the tiles in a given array are empty
 // Otherwise returns false
 Piece.prototype.squaresAreEmpty = function (tilesArr, playerPieces, opponentPieces) {
@@ -212,7 +211,13 @@ Piece.prototype.squaresAreEmpty = function (tilesArr, playerPieces, opponentPiec
   return tilesArr.every(function(tile) {
     return occupiedPositions.indexOf(tile) === -1;
   });
+}
 
+// Promotes the piece to queen
+Piece.prototype.promoteToQueen = function (tile, board) {
+  this.piece.name = 'queen';
+  this.image.src = 'images/' + this.color + '/' + this.piece.name + '.svg';
+  this.render(tile, tile, board);
 }
 
 

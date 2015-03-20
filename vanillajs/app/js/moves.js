@@ -190,6 +190,15 @@ Moves.prototype.movePiece = function (from, newpos, player, opponent) {
     opponent.captured.push(captured);
     captured.renderCaptured(player, opponent);
   }
+  // Pawn always becomes queen
+  if (from.name === 'pawn') {
+    var targetRow;
+    player.playForwardDirection ? targetRow = 8 : targetRow = 1;
+    if (parseInt(newpos.split('')[1]) === targetRow) {
+      player.pieces[idx].name = 'queen';
+      player.piecesList[idx].promoteToQueen(newpos, this.board);
+    }
+  }
 
   // It's the other players turn
   this.turn === 'player1' ? this.turn = 'player2' : this.turn = 'player1';

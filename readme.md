@@ -1,6 +1,6 @@
 ### Chess
 
-Implementations of chess
+2 player chess
 
 * Vanillajs
 * Scalajs
