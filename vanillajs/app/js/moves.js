@@ -114,37 +114,61 @@ Moves.prototype.isCheckMate = function (from, newpos, player, opponent) {
   // 1. Is it possible to capture the piece that has just moved into the 'check' position?
   // 2. Can king move to another position?
   // 3. Can another piece block the check?
+  var kingPos = opponent.pieces.filter (
+    function(piece) {if (piece.name === 'king') {return true;}}
+  )[0].position;
+
   function canCaptureCheckingPiece() {
     // Loop through player pieces, and see if you can capture the piece that lost
-    return !opponent.piecesList.some(function(piece, idx) {
+    return opponent.piecesList.some(function(piece, idx) {
       return piece.isValidMove(newpos, piece.piece.position, opponent.pieces, player.pieces);
     });
   }
 
   function canMoveKing() {
     // Get address of all available squares around the king
-    var kingPos = opponent.pieces.filter (
-      function(piece) {if (piece.name === 'king') {return true;}}
-    )[0].position;
+    var kingIdx = opponent.pieces.map(function(piece) {return piece.name}).indexOf('king');
     var tiles = [];
-    var x, y;
+    var xOffset, yOffset, xCol, yCol;
     var yIdx = GLOBALS.cols.indexOf(kingPos.split('')[0]);
     var xIdx = GLOBALS.rows.indexOf(parseInt(kingPos.split('')[1]));
-    [0,1,2,3,4,5,6,7,8].forEach(function(i) {
-      y = i % 3;
-      x = (i - y)/3;
-    });
-
+    // if its a valid square, add it to the tiles
+    return [0,1,2,3,4,5,6,7,8].some(function(i) {
+      yOffset = i % 3 - 1;
+      xOffset = Math.floor(i/3) - 1;
+      yCol = GLOBALS.cols[yIdx + yOffset];
+      xCol = GLOBALS.rows[xIdx + xOffset];
+      if (xCol && yCol) {
+        var tile = yCol + xCol
+        if (this.isValidMove({name:'king', position:kingPos}, tile, opponent, player, kingIdx)) {
+          return true;
+        }
+      }
+    }, this);
   }
 
-  canMoveKing();
-  return true;
-  // if (canCaptureCheckingPiece()) {
-  //   return false;
-  // } else {
-  //   canMoveKing();
-  //   return true;
-  // }
+  function canBlockCheckMate() {
+    // Knight can never be blocked
+    if (from.name === 'knight') { return false; }
+    // Loop through opponent.pieces and tiles checking if checkmate can be blocked
+    var pieceIdx = player.pieces.map(function(piece) {return piece.position}).indexOf(from.position);
+    var piece = player.piecesList[pieceIdx];
+    var blockableTiles = piece.getSquareList(kingPos, from.position);
+
+    var fr, to;
+    return opponent.piecesList.some(function(p,i) {
+      fr = opponent.pieces[i];
+      return blockableTiles.some(function(t) {
+        return this.isValidMove(fr, t, opponent, player, i);
+      }, this);
+    }, this);
+  }
+
+  if (canCaptureCheckingPiece() || canMoveKing.call(this) || canBlockCheckMate.call(this)) {
+    return false;
+  } else {
+    return true;    
+  }
 }
 
 Moves.prototype.movePiece = function (from, newpos, player, opponent) {
