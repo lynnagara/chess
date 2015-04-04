@@ -18,12 +18,13 @@ object ChessApp extends JSApp {
     draw(jQuery("#chess"))
   }
 
-  def draw(element): Unit = {
+  def draw(element:Unit):Unit = {
     val element = jQuery("#chess")
+    println("hello")
     println(element)
   }
 
-  def addClickedMessage(): Unit = {
+  def addClickedMessage():Unit = {
     jQuery("body").append("<p>You clicked the button!</p>")
   }
 }

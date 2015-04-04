@@ -7,6 +7,7 @@ var Piece = function(canvas, color, piece, playForwardDirection) {
   this.playForwardDirection = playForwardDirection;
   this.image = new Image();
   this.image.src = 'images/' + this.color + '/' + this.piece.name + '.svg';
+  this.renderCount = 0;
 }
 
 Piece.prototype.initialise = function () {
@@ -31,6 +32,7 @@ Piece.prototype.render = function (newpos, oldpos, board) {
     xPos * 50 - 50 + 3, // centering
     yPos * 50 - 50
   );
+  this.renderCount++;
 }
 
 Piece.prototype.renderCaptured = function (player, opponent) {
@@ -49,7 +51,7 @@ Piece.prototype.renderCaptured = function (player, opponent) {
 
 }
 
-Piece.prototype.isValidMove = function (newpos, oldpos, playerPieces, opponentPieces) {
+Piece.prototype.isValidMove = function (newpos, oldpos, playerPieces, opponentPieces, player, opponent) {
   switch(this.piece.name) {
     case 'pawn':
       return this.isValidPawnMove(newpos, oldpos, playerPieces, opponentPieces);
@@ -64,7 +66,7 @@ Piece.prototype.isValidMove = function (newpos, oldpos, playerPieces, opponentPi
       return this.isValidQueenMove(newpos, oldpos, playerPieces, opponentPieces);
       break;
     case 'king':
-      return this.isValidKingMove(newpos, oldpos, playerPieces, opponentPieces);
+      return this.isValidKingMove(newpos, oldpos, playerPieces, opponentPieces, player, opponent);
       break;
     case 'knight':
       return this.isValidKnightMove(newpos, oldpos, playerPieces, opponentPieces);
@@ -183,17 +185,52 @@ Piece.prototype.isValidQueenMove = function (newpos, oldpos, playerPieces, oppon
   return false;
 }
 
-Piece.prototype.isValidKingMove = function (newpos, oldpos, playerPieces, opponentPieces) {
+Piece.prototype.isValidKingMove = function (newpos, oldpos, playerPieces, opponentPieces, player, opponent) {
   var moveDirection = this.getMoveDirection(newpos, oldpos);
   var tiles;
+
   if (Math.abs(moveDirection[0]) === 1 || Math.abs(moveDirection[1]) === 1) {
     tiles = this.getSquareList(newpos, oldpos);
     if (tiles && this.squaresAreEmpty(tiles, playerPieces, opponentPieces)) {
       return true;
     }
+  } else if (Math.abs(moveDirection[0]) === 2 && Math.abs(moveDirection[1]) === 0 && this.renderCount === 1) {
+    // Castling...?
+    // 1. Check that the rook hasn't moved yet
+    var rookCol;
+    moveDirection[0] > 0 ? rookCol = 'h' : rookCol = 'a';
+    var rookAddr = rookCol + newpos.split('')[1];
+    var rookIdx = playerPieces.map(function(piece) {return piece.position}).indexOf(rookAddr);
+    if (player.piecesList[rookIdx].renderCount === 1) {
+      tiles = [newpos];
+      tiles = this.getSquareList(rookAddr, oldpos);
+    }
+    if (tiles.length) {
+      if (!this.squaresAreEmpty(tiles, playerPieces, opponentPieces)) {
+        return false;
+      }
+
+      // Check that king can safely pass through each square, except 'B'
+      tiles.forEach(function(tile) {
+        if (tile.split('')[0] !== 'b') {
+          if(this.kingWouldBeChecked(newpos, oldpos, playerPieces, opponentPieces, player, opponent)) {
+            return false;
+          }
+        }
+      }, this);
+    }
+    return true;
   }
   return false;
 }
+
+Piece.prototype.kingWouldBeChecked = function (newpos, oldpos, playerPieces, opponentPieces, player, opponent) {
+  // Loop through opponent pieces to see if each could check the player
+  return opponent.piecesList.some(function(piece) {
+    piece.isValidMove(newpos, piece.piece.position, opponentPieces, playerPieces, opponent, player);
+  });
+}
+
 
 Piece.prototype.isValidKnightMove = function (newpos, oldpos, playerPieces, opponentPieces) {
   var moveDirection = this.getMoveDirection(newpos, oldpos);

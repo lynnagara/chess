@@ -4,7 +4,7 @@ Writing javascript in scala.
 
 ### Prerequisites
 * sbt 0.13.7 or newer
-* scala 2.11.5 or newer
+* scala 2.11.6 or newer
 
 ### SBT commands
 * sbt

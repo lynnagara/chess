@@ -47,7 +47,29 @@ Moves.prototype.handleSelection = function (tile) {
     from = this[this.turn].pieces[idx];
 
     if (this.isValidMove(from, tile, player, opponent, idx)) {
-      this.movePiece(from, tile, player, opponent);
+
+      // Special rule for castling
+      var xDir = GLOBALS.cols.indexOf(tile.split('')[0]) - GLOBALS.cols.indexOf(from.position.split('')[0]);
+      var rookCol, rookNewCol, rookRow, rookPos, rookIdx, rook, rookFrom, rookNewPos;
+      if (from.name === 'king' && (Math.abs(xDir) === 2)) {
+        if (xDir > 0) {
+          rookCol = 'h';
+          rookNewCol = 'f';
+        } else {
+          rookCol = 'a';
+          rookNewCol = 'd';
+        }
+        player.color === 'white' ? rookRow = '1' : rookRow = '8';
+        rookPos = rookCol + rookRow;
+        rookNewPos = rookNewCol + rookRow;
+        rookIdx = player.piecesList.map(function(piece) {
+          return piece.piece.position;
+        }).indexOf(rookPos);
+        rook = player.piecesList[rookIdx];
+        rookFrom = player.piecesList[rookIdx].piece;
+        this.movePiece(rookFrom, rookNewPos, player, opponent, true);
+      }
+      this.movePiece(from, tile, player, opponent, false);
     } else {
       this.unselectTile(this.selectedTile);      
     }
@@ -63,7 +85,7 @@ Moves.prototype.isValidMove = function (from, newpos, player, opponent, idx) {
     return false;
   } else {
     var piece = this[this.turn].piecesList[idx];
-    var isValid = piece.isValidMove(newpos, from.position, player.pieces, opponent.pieces);
+    var isValid = piece.isValidMove(newpos, from.position, player.pieces, opponent.pieces, player, opponent);
     return isValid;
   }
 }
@@ -171,7 +193,7 @@ Moves.prototype.isCheckMate = function (from, newpos, player, opponent) {
   }
 }
 
-Moves.prototype.movePiece = function (from, newpos, player, opponent) {
+Moves.prototype.movePiece = function (from, newpos, player, opponent, dontSwitchTurns) {
   // Get idx in player's array
   var idx = this[this.turn].pieces
     .map(function(piece) { return JSON.stringify(piece)})
@@ -179,6 +201,7 @@ Moves.prototype.movePiece = function (from, newpos, player, opponent) {
   var piece = this[this.turn].piecesList[idx];
   piece.render(newpos, from.position, this.board);
   this.clearTile(from.position);
+
   // Update array
   this[this.turn].pieces[idx].position = newpos;
   // Check if there is a capture
@@ -190,6 +213,7 @@ Moves.prototype.movePiece = function (from, newpos, player, opponent) {
     opponent.captured.push(captured);
     captured.renderCaptured(player, opponent);
   }
+
   // Pawn always becomes queen
   if (from.name === 'pawn') {
     var targetRow;
@@ -201,15 +225,17 @@ Moves.prototype.movePiece = function (from, newpos, player, opponent) {
   }
 
   // It's the other players turn
-  this.turn === 'player1' ? this.turn = 'player2' : this.turn = 'player1';
-  if (this.isCheck(from, newpos, player, opponent)) {
-    if (this.isCheckMate(from, newpos, player, opponent)) {
-    this.renderTurnText(this.turn, 'CHECKMATE');
+  if (!dontSwitchTurns) {
+    this.turn === 'player1' ? this.turn = 'player2' : this.turn = 'player1';
+    if (this.isCheck(from, newpos, player, opponent)) {
+      if (this.isCheckMate(from, newpos, player, opponent)) {
+      this.renderTurnText(this.turn, 'CHECKMATE');
+      } else {
+        this.renderTurnText(this.turn, 'CHECK');
+      }
     } else {
-      this.renderTurnText(this.turn, 'CHECK');
+      this.renderTurnText(this.turn);
     }
-  } else {
-    this.renderTurnText(this.turn);
   }
 }
 
